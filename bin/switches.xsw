@@ -1,0 +1,569 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE dir SYSTEM "switches.dtd">
+<dir comment="All program input parameters" title="Propag properties">
+	<dir title="General">
+		  <dir comment="ODE Solving Method and Related Parameters" title="ODE Solving">
+			  <double comment="initial time step at z=0 (Mpc)" default="0.5" title="microStep" value="0.5"/>
+			  <switch default="0" title="OdeStepMethod" value="0">
+				    <sw comment="Old method (1st order implisit scheme with Richardson extrapolation (but without step adjustment)" title="FastStep"/>
+				    <sw comment="Embedded 2nd order Runge-Kutta with 3rd order error estimate" title="Gsl_rk2"/>
+				    <sw comment="4th order (classical) Runge-Kutta" title="Gsl_rk4"/>
+				    <sw comment="Embedded 4th order Runge-Kutta-Fehlberg method with 5th order error estimate. This method is a good general-purpose integrator" title="Gsl_rkf45"/>
+				    <sw comment="Embedded 4th order Runge-Kutta Cash-Karp method with 5th order error estimate" title="Gsl_rkck"/>
+				    <sw comment="Embedded 8th order Runge-Kutta Prince-Dormand method with 9th order error estimate" title="Gsl_rk8pd"/>
+				    <sw comment="Implicit 2nd order Runge-Kutta at Gaussian points" title="Gsl_rk2imp"/>
+				    <sw comment="New semi-implicit ode-initval solver (T.Keskitalo). Uses Jacobian." title="Gsl_rk2simp"/>
+				    <sw comment="Implicit 4th order Runge-Kutta at Gaussian points" title="Gsl_rk4imp"/>
+				    <sw comment="Implicit Bulirsch-Stoer method of Bader and Deuflhard. Uses Jacobian." title="Gsl_bsimp"/>
+				    <sw comment="M=1 implicit Gear method" title="Gsl_gear1"/>
+				    <sw comment="M=2 implicit Gear method" title="Gsl_gear2"/>
+			</switch>
+			  <double comment="Maximal absolute ODE solving error. Only has effect if GSL based ODE solving method is used" default="0.0001" title="AbsODESolvingError" value="0.0001"/>
+			  <double comment="Maximal relative ODE solving error. Only has effect if GSL based ODE solving method is used" default="0.0001" title="RelODESolvingError" value="0.0001"/>
+			  <bool comment="Take into account redshift as continuous energy loss" default="true" title="CELredshift" value="true"/>
+			  <bool comment="do not extrapolate coeffitients on z" default="false" title="NO_Z_COEF_EXTRAPOLATION" value="false"/>
+			  <bool comment="decrease steps if needed based on interaction rates" default="false" title="Runtime_step_correction" value="false"></bool>
+			  <double comment="energy density quantile to use for rate based step correction" default="0.99" title="StepCorrectionQuantile" value="0.999"/>
+		</dir>
+		  <dir comment="Calculation regime" title="Regime">
+		  	<switch default="0" title="CalcMode" value="0">
+				    <sw comment="Cosmological sources" title="Cosmological"/>
+				    <sw comment="Nearby uniform source distribution" title="Nearby"/>
+				    <sw comment="Inner galactic spectrum" title="GalaxyInner"/>
+				    <sw comment="Calculate mean outer effective spectrum assuming density of galaxies 1 Mpc^-3 (under development)" title="GalaxyOuter"/>
+			</switch>
+			  <dir comment="Nearby uniform sources" title="Close sources">
+				    <double comment="distance in units of attenuation length (used if fTauParticle>=0)" default="1" title="sdtTauDistance" value="1"/>
+				    <int comment="particle used for attenuation length unit of fTauDistance parameter (used if fTauDistance>0)" default="-1" title="sdtTauParticle" value="-1"/>
+				    <double comment="Energy in MeV at which the attenuation length is calculated (if&lt;0) the minimum attenuation length is used (used if fTauDistance>0 and fTauParticle>=0)" default="-1" title="sdtTauEnergyMeV" value="-1"/>
+				    <double comment="distance in Mpc (used if fTauDistance&lt;0 or fTauParticle&lt;0)" default="100" title="L_short_distance_test" value="100"/>
+				    <double comment="D~(E/z)^beta for E/z &lt; sdtDiffusionEmax and rectlinear propagation above" default="0.333333333333333" title="sdtDiffusionBeta" value="0.333333333333333"/>
+				    <double comment="maximal rigidity E/z in eV for diffusion mode. Set to zero to disable diffusion. Ignored in leaky box test" default="0" title="sdtDiffusionEmax" value="0"/>
+				    <bool comment="Leaky box test" default="false" title="LeakyBoxTest" value="false"/>
+				    <int comment="number of intermediate spectra outputs in short distance test" default="1" title="shortDistanceTestOutputNo" value="1"/>
+			</dir>
+			<dir comment="Galactic sources" title="Galactic sources">
+					<switch default="0" title="GalSourceDistribution" value="0">
+						    <sw comment="Stellar" title="Stellar"/>
+						    <sw comment="Navarro-Frenck-White DM profile" title="NFW"/>
+						    <sw comment="Halo hot-gas times CR" title="HotGas-CR"/>
+						    <sw comment="Halo hot-gas times CR ver.2" title="HotGas-CR2"/>
+						    <sw comment="const up to 100 kpc (used for tests)" title="Const"/>
+						    <sw comment="Burkert DM profile" title="Burkert"/>
+					</switch>
+					<dir comment="HotGas times CR ver1 and ver2 distribution parameters" title="HotGas">
+					    <double comment="cosmic rays distribution param 1&lt;a&lt;2.3" default="1" title="HG_a" value="1"/>
+						<dir comment="HotGas times CR ver1" title="HotGas-CR1">
+			  				<double comment="gas distribution param 1&lt;C_c&lt;12" default="1" title="HG_Cc" value="1"/>
+						</dir>
+						<dir comment="Calculation of products from p-p in halo. If HG_CustomCRdistr is checked, ProtonsConc parameter is used as concentration of protons at Sun's position." title="HotGas-CR2">
+			  				<double comment="Maximal source distance from Galaxy center" default="100" title="HG_MaxRadius_kpc" value="100"/>
+			  				<double comment="Minimal source distance from Galaxy center" default="0" title="HG_MinRadius_kpc" value="0"/>
+			  				<double comment="gas distribution param 0.2&lt;beta&lt;1 (ignored if HG_CustomGasDistr is set)" default="0.5" title="HG_Beta" value="0.5"/>
+			  				<double comment="gas distribution plato size 0.1&lt;r0&lt;7 (ignored if HG_CustomGasDistr is set)" default="3" title="HG_R0_kpc" value="3"/>
+			  				<string comment="custom gas distribution file (placed in './galaxy' directory). If empty, HG_Beta and HG_R0_kpc params are used used" default="" title="HG_CustomGasDistr" value=""/>
+			  				<string comment="custom CR distribution file (placed in './galaxy' directory). If empty, default CR distrib is used" default="" title="HG_CustomCRdistr" value=""/>
+			  				<bool comment="use custom CR distribution (if HG_CustomCRdistr is not empty all parameters below will be ignored)" default="false" title="HG_useCustomCRdistr" value="false"/>
+			  				<double comment="CR distribution plato size" default="0" title="HG_R1_kpc" value="0"/>
+			  				<double comment="CR diffusion coef. for E=1GeV in cm^2/s. Set to zero to disable." default="0" title="HG_D" value="0"/>
+			  				<double comment="CR diffusion coef. power law dep on E/B" default="0.333333333333333" title="HG_D_power" value="0.333333333333333"/>
+
+						</dir>
+					</dir>
+				    <double comment="l,b integration angle step in degrees" default="1" title="GalAngleStep" value="1"/>
+				    <double comment="integrate flux on l from GalL to GalL + GalDeltaL" default="0" title="GalL" value="0"/>
+				    <double comment="integrate flux on l from GalL to GalL + GalDeltaL" default="360" title="GalDeltaL" value="360"/>
+				    <double comment="integrate flux on b from GalB to GalB + GalDeltaB" default="-90" title="GalB" value="-90"/>
+				    <double comment="integrate flux on b from GalL to GalB + GalDeltaB" default="180" title="GalDeltaB" value="180"/>
+				    <bool comment="output spectra from each step" default="false" title="GalVerboseOutput" value="false"/>
+			</dir>
+		</dir>
+		  <dir comment="Cosmological parameters" title="Cosmology">
+			  <double comment="Hubble constant in km/s/Mpc" default="67.8" title="H_in_km_s_Mpc" value="67.8"/>
+			  <double comment="Omega vacuum: 0&lt;=Lv&lt;1" default="0.692" title="Lv" value="0.692"/>
+		</dir>
+		  <dir comment="Simulate propagation for the following particles only" title="Propagating particles">
+			  <bool comment="electrons" default="true" title="calc_e" value="true"/>
+			  <bool comment="positrons" default="true" title="calc_ae" value="true"/>
+			  <bool comment="photons" default="true" title="calc_ph" value="true"/>
+			  <bool comment="electron neutrino" default="true" title="calc_en" value="true"/>
+			  <bool comment="muon neutrino" default="true" title="calc_mn" value="true"/>
+			  <bool comment="tau neutrino" default="true" title="calc_tn" value="true"/>
+			  <bool comment="electron antineutrino" default="true" title="calc_aen" value="true"/>
+			  <bool comment="muon antineutrino" default="true" title="calc_amn" value="true"/>
+			  <bool comment="tau antineutrino" default="true" title="calc_atn" value="true"/>
+			  <bool comment="neutron" default="true" title="calc_n" value="true"/>
+			  <bool comment="proton" default="true" title="calc_p" value="true"/>
+			  <int comment="calculate nuclei propagation up to MinNucleiA (2-56)" default="2" title="MinNucleiA" value="2"/>
+			  <int comment="calculate nuclei propagation starting from MaxNucleiA (2-56, or set to 1 to disable nuclei simulation)" default="56" title="MaxNucleiA" value="56"/>
+		</dir>
+		  <dir comment="Rarely used additional options" title="Advanced">
+			  <double comment="current value of the scan parameter" default="0" title="scanPar" value="0"/>
+			  <bool comment="Output debug information" default="false" title="DebugOutput" value="false"/>
+			  <string comment="List of scan parameters" default="" title="scanNames" value=""/>
+			  <string comment="List of scan parameters' current values" default="" title="scanValues" value=""/>
+		</dir>
+		  <double comment="minimal energy (eV)" default="1e+18" title="Emin" value="1e+18"/>
+		  <double comment="maximal energy (eV)" default="1e+21" title="Emax" value="1e+21"/>
+		  <int comment="number of points per one tenth of decade on energy scale (must be integer > 0)" default="2" title="energyResolutionFactor" value="2"/>
+		  <int comment="number of steps in z corresponding to the shift of energy on one bin (must be integer > 0)" default="1" title="zResolutionFactor" value="1"/>
+	</dir>
+	<dir title="Backgrounds">
+		  <dir title="Photon Backgrounds">
+			  <double comment="CMB temperature at z=0 [K]" default="2.7255" title="T0_CMB" value="2.7255"/>
+			  <bool comment="turn off microwave background" default="false" title="NO_MWB" value="false"/>
+			  <switch default="3" title="Radio_model" value="3">
+				    <sw comment="turn of radio background" title="Off"/>
+				    <sw comment="use Minimal model" title="Minimal"/>
+				    <sw comment="Not supported anymore" title="Minimal_Lee"/>
+				    <sw comment="astro-ph-9605119, Fig 5b lower solid curve" title="Middle"/>
+				    <sw comment="astro-ph-9605119, Fig 5b upper solid curve" title="Maximal"/>
+				    <sw title="Galactic"/>
+				    <sw comment="use model by Sarkar at al astro-ph 1005.2620v2" title="Sarkar1005"/>
+			</switch>
+			  <double comment="radio background multiplier, normally equal to 1" default="1" title="radioMult" value="1"/>
+			  <switch comment="IR/O background model" default="6" title="IRO_model" value="6">
+				    <sw comment="turn off IR/O background" title="Off"/>
+				    <sw comment="Not in use" title="Reserved1"/>
+				    <sw comment="Not in use" title="Reserved2"/>
+				    <sw comment="use Primack model" title="Primack"/>
+				    <sw comment="use model of Kneiske et al 2002" title="Kneiske02"/>
+				    <sw comment="use astro-ph-9808110 (Stecker at al)" title="Stecker98"/>
+				    <sw comment="use astro-ph-0510449 (Stecker at al)" title="Stecker05"/>
+				    <sw comment="use modified black body spectrum with T=IRO_BB_T, multiplied by pow(E/T,IRO_BB_Power)" title="BlackBody"/>
+				    <sw comment="left for backward compatibility only. Use more precise KneiskeMinimal!" title="Kneiske1001"/>
+				    <sw comment="left for backward compatibility only. Use more precise KneiskeBestFit!" title="Kneiske0309"/>
+				    <sw comment="use model by Sarkar at al astro-ph 1005.2620v2" title="Sarkar1005"/>
+				    <sw comment="use 'best fit' model of Tanja Kneiske et al astro-ph-0309141v1" title="KneiskeBestFit"/>
+				    <sw comment="use 'minimal model' of Tanja Kneiske et al astro-ph-1001.2132v1" title="KneiskeMinimal"/>
+				    <sw comment="use astro-ph 0510449 for IR and upper level from 1205.5168v3 for Optic/UV" title="Stecker12up"/>
+				    <sw comment="use astro-ph 0510449 for IR and lower level from 1205.5168v3 for Optic/UV" title="Stecker12low"/>
+				    <sw comment="use baseline model by Inoue et al. arXiv:1212.1683" title="InoueBaseline"/>
+				    <sw comment="use lower pop 3 model by Inoue et al. arXiv:1212.1683" title="InoueLowPop3"/>
+				    <sw comment="use upper pop 3 model by Inoue et al. arXiv:1212.1683" title="InoueUpPop3"/>
+				    <sw comment="EBL model by Franceschini08 et al. arXiv:0805.1841v2 (see Tables 1,2)" title="Franceschini08"/>
+				    <sw comment="Lower EBL level from Stecker et al. arXiv:1605.01382" title="Stecker16Low"/>
+                    <sw comment="Upper EBL level from Stecker et al. arXiv:1605.01382" title="Stecker16Up"/>
+                    <sw comment="The EBL by Franceschini et al. arXiv:1705.10256v1" title="Franceschini17"/>
+			</switch>
+			<switch comment="Custom background usage" default="0" title="CustomBackground" value="0">
+                <sw comment="do not use" title="Off"/>
+                <sw comment="add to other backgrounds" title="Add"/>
+                <sw comment="replace other backgrounds within the energy range of the background definition, and use other backgrounds outside the energy range" title="Replace"/>
+            </switch>
+            <switch comment="Custom background type" default="0" title="CustomBackgroundFormat" value="0">
+                  <sw comment="plain 2 column format (no z dependence)" title="Plain"/>
+                  <sw comment="use matrix table input format (see MatrixBackground class)" title="Matrix"/>
+                  <sw comment="Defined in CustomBackground.cpp" title="Analytic"/>
+            </switch>
+            <switch comment="Custom background evolution for table format only" default="0" title="CustomBackgroundEvolution" value="0">
+                   <sw comment="constant in comoving volume (always used for analytic)" title="ConstantComoving"/>
+                   <sw comment="same as selected IR/O model evolution at given energy (used for plain 2 column format only)" title="Proportional"/>
+                   <sw comment="constant in physical volume (used for table format only)" title="ConstantPhysical"/>
+            </switch>
+			  <string comment="path to table with custom background (E/eV and E*dN/dE/cm^-3)" default="tables/customEBL" title="custom_backgr_file" value="tables/customEBL"/>
+			  <double comment="IR/O background multiplier, normally equal to 1" default="1" title="iroMult" value="1"/>
+			  <double comment="Background Lower cut in eV (set to 0 to disable)" default="0" title="BackgroundLowerCut_eV" value="0"/>
+			  <double comment="Background Upper cut in eV (set to large value to disable)" default="1E100" title="BackgroundUpperCut_eV" value="1E100"/>
+			  <double comment="Modified black body spectrum temperature (has effect if IRO_model==IRO_BLACKBODY)" default="11600" title="IRO_BB_T" value="11600"/>
+			  <double comment="Modified black body spectrum power law param (has effect if IRO_model==IRO_BLACKBODY)" default="0" title="IRO_BB_Power" value="0"/>
+			  <double comment="Modified black body background density in cm^-3 at z=0(has effect if IRO_model==IRO_BLACKBODY, if zero or nagative no normalizing is performed)" default="-1" title="IRO_BB_Density" value="-1"/>
+			  <bool comment="Modified black body background temperature Z-dependence if true T(Z) = (1+z)T(0)" default="false" title="IRO_BB_Zdependence" value="false"/>
+			  <double comment="table EBL redshift extension parameter (see class HighRedshiftBackgrExtension), set to negative to disable extension" default="-1" title="IRO_extensionDeltaZconst" value="-1"/>
+			  <double comment="table EBL redshift extension parameter (see class HighRedshiftBackgrExtension), set IRO_extensionDeltaZconst to negative to disable extension" default="-3" title="IRO_extensionPowerLow" value="-3"/>
+			  <double comment="table EBL redshift extension parameter (see class HighRedshiftBackgrExtension), set to 0 to disable exp suppression" default="0" title="IRO_extensionDeltaZexp" value="0"/>
+		</dir>
+		  <dir title="Neutrino backgrounds">
+			  <double comment="electron neutrino mass in eV" default="1" title="m_en" value="1"/>
+			  <double comment="muon neutrino mass in eV" default="1" title="m_mn" value="1"/>
+			  <double comment="tau neutrino mass in eV" default="1" title="m_tn" value="1"/>
+
+		</dir>
+		  <dir title="Magnetic field">
+			  <double comment="Extragalactic magnetic field in Gauss" default="0" title="B0" value="0"/>
+			  <bool comment="increasing with z magnetic field" default="false" title="B_INCREASING" value="false"/>
+		</dir>
+		  <dir title="Protons (experimental)">
+			  <double comment="Proton concentration in cm^-3" default="0" title="ProtonsConc" value="0"/>
+		</dir>
+	</dir>
+	<dir comment="UHECR source" title="Source">
+		  <dir comment="Injection spectra multipliers" title="Rates">
+			  <bool comment="Inject heaviest nucleus only" default="false" title="AutoNucleiRates" value="false"/>
+			  <double comment="electrons" default="0" title="eRate" value="0"/>
+			  <double comment="positrons" default="0" title="aeRate" value="0"/>
+			  <double comment="photons" default="0" title="phRate" value="0"/>
+			  <double comment="electron neutrino" default="0" title="enRate" value="0"/>
+			  <double comment="electron antineutrino" default="0" title="aenRate" value="0"/>
+			  <double comment="muon neutrino" default="0" title="mnRate" value="0"/>
+			  <double comment="muon antineutrino" default="0" title="amnRate" value="0"/>
+			  <double comment="tau neutrino" default="0" title="tnRate" value="0"/>
+			  <double comment="tau antineutrino" default="0" title="atnRate" value="0"/>
+			  <double comment="protons" default="0" title="pRate" value="0"/>
+			  <double comment="neutrons" default="0" title="nRate" value="0"/>
+			  <double comment="A02" default="0" title="A02Rate" value="0"/>
+			  <double comment="A03" default="0" title="A03Rate" value="0"/>
+			  <double comment="A04" default="0" title="A04Rate" value="0"/>
+			  <double comment="A05" default="0" title="A05Rate" value="0"/>
+			  <double comment="A06" default="0" title="A06Rate" value="0"/>
+			  <double comment="A07" default="0" title="A07Rate" value="0"/>
+			  <double comment="A08" default="0" title="A08Rate" value="0"/>
+			  <double comment="A09" default="0" title="A09Rate" value="0"/>
+			  <double comment="A10" default="0" title="A10Rate" value="0"/>
+			  <double comment="A11" default="0" title="A11Rate" value="0"/>
+			  <double comment="A12" default="0" title="A12Rate" value="0"/>
+			  <double comment="A13" default="0" title="A13Rate" value="0"/>
+			  <double comment="A14" default="0" title="A14Rate" value="0"/>
+			  <double comment="A15" default="0" title="A15Rate" value="0"/>
+			  <double comment="A16" default="0" title="A16Rate" value="0"/>
+			  <double comment="A17" default="0" title="A17Rate" value="0"/>
+			  <double comment="A18" default="0" title="A18Rate" value="0"/>
+			  <double comment="A19" default="0" title="A19Rate" value="0"/>
+			  <double comment="A20" default="0" title="A20Rate" value="0"/>
+			  <double comment="A21" default="0" title="A21Rate" value="0"/>
+			  <double comment="A22" default="0" title="A22Rate" value="0"/>
+			  <double comment="A23" default="0" title="A23Rate" value="0"/>
+			  <double comment="A24" default="0" title="A24Rate" value="0"/>
+			  <double comment="A25" default="0" title="A25Rate" value="0"/>
+			  <double comment="A26" default="0" title="A26Rate" value="0"/>
+			  <double comment="A27" default="0" title="A27Rate" value="0"/>
+			  <double comment="A28" default="0" title="A28Rate" value="0"/>
+			  <double comment="A29" default="0" title="A29Rate" value="0"/>
+			  <double comment="A30" default="0" title="A30Rate" value="0"/>
+			  <double comment="A31" default="0" title="A31Rate" value="0"/>
+			  <double comment="A32" default="0" title="A32Rate" value="0"/>
+			  <double comment="A33" default="0" title="A33Rate" value="0"/>
+			  <double comment="A34" default="0" title="A34Rate" value="0"/>
+			  <double comment="A35" default="0" title="A35Rate" value="0"/>
+			  <double comment="A36" default="0" title="A36Rate" value="0"/>
+			  <double comment="A37" default="0" title="A37Rate" value="0"/>
+			  <double comment="A38" default="0" title="A38Rate" value="0"/>
+			  <double comment="A39" default="0" title="A39Rate" value="0"/>
+			  <double comment="A40" default="0" title="A40Rate" value="0"/>
+			  <double comment="A41" default="0" title="A41Rate" value="0"/>
+			  <double comment="A42" default="0" title="A42Rate" value="0"/>
+			  <double comment="A43" default="0" title="A43Rate" value="0"/>
+			  <double comment="A44" default="0" title="A44Rate" value="0"/>
+			  <double comment="A45" default="0" title="A45Rate" value="0"/>
+			  <double comment="A46" default="0" title="A46Rate" value="0"/>
+			  <double comment="A47" default="0" title="A47Rate" value="0"/>
+			  <double comment="A48" default="0" title="A48Rate" value="0"/>
+			  <double comment="A49" default="0" title="A49Rate" value="0"/>
+			  <double comment="A50" default="0" title="A50Rate" value="0"/>
+			  <double comment="A51" default="0" title="A51Rate" value="0"/>
+			  <double comment="A52" default="0" title="A52Rate" value="0"/>
+			  <double comment="A53" default="0" title="A53Rate" value="0"/>
+			  <double comment="A54" default="0" title="A54Rate" value="0"/>
+			  <double comment="A55" default="0" title="A55Rate" value="0"/>
+			  <double comment="A56" default="0" title="A56Rate" value="0"/>
+		</dir>
+		  <dir comment="Z-dependence of the source" title="Z-dependence">
+			  <switch comment="Z-dependence of the source" default="1" title="z-dependence" value="1">
+				    <sw comment="no dependence in comoving frame" title="Off"/>
+				    <sw comment="(1+z)^m_z" title="Power Law"/>
+				    <sw comment="t^{-4+p}" title="TD power law"/>
+				    <sw comment="Waxman-Bahcall (hep-ph 9807282) x (1+z)^m" title="WaxmanBahcall"/>
+				    <sw comment="Star formation rate (astro-ph 0309141) x (1+z)^m" title="SFR03"/>
+				    <sw comment="m=3 to z=1.8 and constant to z=3 going to zero there x (1+z)^m" title="Week"/>
+				    <sw comment="corresponds to baseline evolution astro-ph-1512479 x (1+z)^m" title="Baseline"/>
+				    <sw comment="fast evolution from astro-ph 1512479 x (1+z)^m" title="Strong"/>
+				    <sw comment="corresponds to Fig. 9 of astro-ph 0101216v2 x (1+z)^m" title="Engel9"/>
+				    <sw comment="(1+z)^m from Zmin up to PowerCutZ and const from PowerCutZ to Zmax" title="PowerCut"/>
+				    <sw comment="Star formation rate from astro-ph/0607087(lower figure 3) x (1+z)^m" title="SFR06"/>
+				    <sw comment="star formation rate from ArXiv:1103.3574v2  (formula 11) x (1+z)^m" title="SFR_Yuksel"/>
+				    <sw comment="GRB rate from ArXiv:1103.3574v2  (formula 12) x (1+z)^m" title="GRB_Yuksel"/>
+				    <sw comment="AGN rate from ArXiv:1103.3574v2  (formula 13) x (1+z)^m" title="AGN_Aharonian"/>
+				    <sw comment="AGN rate from ArXiv:0506118v1 (formulas 14,15,16 for Lx=42.5) x (1+z)^m" title="AGN_Hasinger42"/>
+				    <sw comment="AGN rate from ArXiv:0506118v1 (formulas 14,15,16 for Lx=43.5) x (1+z)^m" title="AGN_Hasinger43"/>
+				    <sw comment="AGN rate from ArXiv:0506118v1 (formulas 14,15,16 for Lx=44.5) x (1+z)^m" title="AGN_Hasinger44"/>
+				    <sw comment="AGN rate from ArXiv:0506118v1 (formulas 14,15,16 for Lx=45.5) x (1+z)^m" title="AGN_Hasinger45"/>
+					<sw comment="TODO: add reference when paper is ready" title="Starburst1"/>
+					<sw comment="TODO: add reference when paper is ready" title="Starburst2"/>
+					<sw comment="TODO: add reference when paper is ready" title="StarForming1"/>
+					<sw comment="TODO: add reference when paper is ready" title="StarForming2"/>
+					<sw comment="TODO: add reference when paper is ready" title="BLLac"/>
+					<sw comment="Use custom function times (1+z)^m_z in comoving volume (see CustomEvolFile setting)" title="Custom"/>
+					<sw comment="Use SFR rate from ArXiv:1403.0007 (formula 15) times (1+z)^m_z in comoving volume" title="SFR_Madau14"/>
+					<sw comment="Decaying source with tau given by SourceDecayT parameter" title="Decay"/>
+					<sw comment="Defined in CustomEvolution() in CustomInjSpectrum.h" title="Custom Code"/>
+			</switch>
+			  <switch comment="Zmin calculation mode" default="0" title="ZminMode" value="0">
+				    <sw comment="Use fixed Zmin given by Zmin parameter" title="Fixed"/>
+				    <sw comment="Calculate Zmin based on black hole mass (parameter BlackHoleMass)" title="Black hole"/>
+			</switch>
+			  <double comment="source decay time (sec) only used in Decay mode" default="1e17" title="SourceDecayT" value="1e17"/>
+			  <string comment="Two column data file with comoving density used in custom evolution mode" default="custom_evol/myfunc" title="CustomEvolFile" value="custom_evol/myfunc"/>
+			  <double comment="decay parameter for TD power law model" default="1" title="p" value="1"/>
+			  <double comment="z-dependence parameter in test spectrum" default="0" title="m_z" value="0"/>
+			  <double comment="maximal source redshift" default="3" title="Zmax" value="3"/>
+			  <double comment="minimal source redshift" default="0" title="Zmin" value="0"/>
+			  <double comment="Used in PowerCut z-dependence mode only" default="2" title="PowerCutZ" value="2"/>
+		</dir>
+		  <dir comment="Parameters of fragmentation based injection spectra" title="Fragmentation">
+			  <double comment="power base of graph data (n for x^n*F(x) graph as source)" default="3" title="FragmentationGraphPower" value="3"/>
+		</dir>
+		  <switch comment="Injection Spectra Type" default="0" title="InjectionSpectraType" value="0">
+			  <sw comment="pow(E/Eo,-alpha)" title="Power low"/>
+			  <sw comment="delta(E-DeltaSourceEnergy)" title="Delta function"/>
+			  <sw comment="Table spectrum based read from 'custom_injection/[CustomInjectionFileName]'" title="Table"/>
+			  <sw comment="The spectrum based on Emax and custom fragmentation function found in 'custom_fragmentation' folder" title="FragmentationBased"/>
+			  <sw comment="Neronov-Semikoz Black Hole model" title="Neronov BH"/>
+			  <sw comment="Custom code defined in CustomInjSpectrum.cpp" title="CustomCode"/>
+		</switch>
+		  <string comment="Custom Injection Spectrum File Name (file should be located in 'custom_injection' folder)" default="all" title="CustomInjectionFileName" value="all"/>
+		  <double comment="For continuous source divide custom spectrum by deltaT (Mpc)" default="1" title="CustomInjectionDeltaT_Mpc" value="1"/>
+		  <double comment="Position of lower exponential cutoff of the injection spectra in eV [set to 0 to disable]" default="0" title="injSpectraLowerAbsCutoff" value="0"/>
+		  <double comment="(0.0-1.0) position of lower cutoff of the injection spectra in units of Emax [only has effect if injSpectraLowerAbsCutoff=0]" default="0" title="injSpectraLowerCutoff" value="0"/>
+		  <double comment="length in decades at which injection spectra is suppressed by factor of 10" default="3.5" title="injSpectraLowerCutoffWidth" value="3.5"/>
+		  <double comment="(0.0-1.0, if more than 1, no cutoff) position of higher exponential cutoff in units of Emax" default="2" title="injSpectraHigherCutoff" value="2"/>
+		  <double comment="position of power cut in eV" default="1e25" title="injSpectraPowerCutEnergy" value="1e25"/>
+          <double comment="multiply by E/injSpectraPowerCutEnergy^{-injSpectraPowerCut} above injSpectraPowerCutEnergy" default="0.3" title="injSpectraPowerCut" value="0.3"/>
+		  <double comment="Black hole mass in units of solar mass" default="1e+06" title="BlackHoleMass" value="1e+06"/>
+		  <switch comment="Emax adjustment" default="0" title="EmaxMode" value="0">
+			  <sw comment="maximal energy for all particles is Emax" title="Common"/>
+			  <sw comment="maximal energy for nuclei is Z*Emax and for the rest of particles Emax" title="Z-based"/>
+			  <sw comment="maximal energy for nuclei is A*Emax and for the rest of particles Emax" title="A-based"/>
+			  <sw comment="Use CInjectionSpectra::customMaxE()" title="Custom"/>
+			  <sw comment="Calculate using Black Hole Mass in optimistic scenario from astro-ph/0808.0367" title="BH Optimistic"/>
+			  <sw comment="Calculate using Black Hole Mass in realistic scenario from astro-ph/0808.0367" title="BH Realistic"/>
+			  <sw comment="Diffusive acceleration with synchrotron losses" title="Diffusive"/>
+			  <sw comment="Inductive acceleration with synchrotron losses" title="InductiveSynchr"/>
+			  <sw comment="Inductive acceleration with curvature losses" title="InductiveCurv"/>
+		</switch>
+		  <dir comment="Power law and delta-function spectra parameters" title="Analytical energy spectrum">
+			  <double comment="Fixed energy source parameter (MeV). If zero, Emax is used" default="0" title="DeltaSourceEnergy" value="0"/>
+			  <bool comment="Use the same alpha for all particles" default="true" title="UseCommonAlpha" value="true"/>
+			  <double comment="Common alpha" default="2" title="CommonAlpha" value="2"/>
+			  <double comment="Normalization energy (MeV)" default="1e+13" title="NormalizationEnergy" value="1e+13"/>
+			  <dir comment="Power law parameters for all particles involved" title="alphas">
+				    <double comment="alpha for e" default="2" title="alpha_e" value="2"/>
+				    <double comment="alpha for ae" default="2" title="alpha_ae" value="2"/>
+				    <double comment="alpha for ph" default="2" title="alpha_ph" value="2"/>
+				    <double comment="alpha for en" default="2" title="alpha_en" value="2"/>
+				    <double comment="alpha for mn" default="2" title="alpha_mn" value="2"/>
+				    <double comment="alpha for tn" default="2" title="alpha_tn" value="2"/>
+				    <double comment="alpha for aen" default="2" title="alpha_aen" value="2"/>
+				    <double comment="alpha for amn" default="2" title="alpha_amn" value="2"/>
+				    <double comment="alpha for atn" default="2" title="alpha_atn" value="2"/>
+				    <double comment="alpha for n" default="2" title="alpha_n" value="2"/>
+				    <double comment="alpha for p" default="2" title="alpha_p" value="2"/>
+				    <double comment="alpha for A02" default="2" title="alpha_A02" value="2"/>
+				    <double comment="alpha for A03" default="2" title="alpha_A03" value="2"/>
+				    <double comment="alpha for A04" default="2" title="alpha_A04" value="2"/>
+				    <double comment="alpha for A05" default="2" title="alpha_A05" value="2"/>
+				    <double comment="alpha for A06" default="2" title="alpha_A06" value="2"/>
+				    <double comment="alpha for A07" default="2" title="alpha_A07" value="2"/>
+				    <double comment="alpha for A08" default="2" title="alpha_A08" value="2"/>
+				    <double comment="alpha for A09" default="2" title="alpha_A09" value="2"/>
+				    <double comment="alpha for A10" default="2" title="alpha_A10" value="2"/>
+				    <double comment="alpha for A11" default="2" title="alpha_A11" value="2"/>
+				    <double comment="alpha for A12" default="2" title="alpha_A12" value="2"/>
+				    <double comment="alpha for A13" default="2" title="alpha_A13" value="2"/>
+				    <double comment="alpha for A14" default="2" title="alpha_A14" value="2"/>
+				    <double comment="alpha for A15" default="2" title="alpha_A15" value="2"/>
+				    <double comment="alpha for A16" default="2" title="alpha_A16" value="2"/>
+				    <double comment="alpha for A17" default="2" title="alpha_A17" value="2"/>
+				    <double comment="alpha for A18" default="2" title="alpha_A18" value="2"/>
+				    <double comment="alpha for A19" default="2" title="alpha_A19" value="2"/>
+				    <double comment="alpha for A20" default="2" title="alpha_A20" value="2"/>
+				    <double comment="alpha for A21" default="2" title="alpha_A21" value="2"/>
+				    <double comment="alpha for A22" default="2" title="alpha_A22" value="2"/>
+				    <double comment="alpha for A23" default="2" title="alpha_A23" value="2"/>
+				    <double comment="alpha for A24" default="2" title="alpha_A24" value="2"/>
+				    <double comment="alpha for A25" default="2" title="alpha_A25" value="2"/>
+				    <double comment="alpha for A26" default="2" title="alpha_A26" value="2"/>
+				    <double comment="alpha for A27" default="2" title="alpha_A27" value="2"/>
+				    <double comment="alpha for A28" default="2" title="alpha_A28" value="2"/>
+				    <double comment="alpha for A29" default="2" title="alpha_A29" value="2"/>
+				    <double comment="alpha for A30" default="2" title="alpha_A30" value="2"/>
+				    <double comment="alpha for A31" default="2" title="alpha_A31" value="2"/>
+				    <double comment="alpha for A32" default="2" title="alpha_A32" value="2"/>
+				    <double comment="alpha for A33" default="2" title="alpha_A33" value="2"/>
+				    <double comment="alpha for A34" default="2" title="alpha_A34" value="2"/>
+				    <double comment="alpha for A35" default="2" title="alpha_A35" value="2"/>
+				    <double comment="alpha for A36" default="2" title="alpha_A36" value="2"/>
+				    <double comment="alpha for A37" default="2" title="alpha_A37" value="2"/>
+				    <double comment="alpha for A38" default="2" title="alpha_A38" value="2"/>
+				    <double comment="alpha for A39" default="2" title="alpha_A39" value="2"/>
+				    <double comment="alpha for A40" default="2" title="alpha_A40" value="2"/>
+				    <double comment="alpha for A41" default="2" title="alpha_A41" value="2"/>
+				    <double comment="alpha for A42" default="2" title="alpha_A42" value="2"/>
+				    <double comment="alpha for A43" default="2" title="alpha_A43" value="2"/>
+				    <double comment="alpha for A44" default="2" title="alpha_A44" value="2"/>
+				    <double comment="alpha for A45" default="2" title="alpha_A45" value="2"/>
+				    <double comment="alpha for A46" default="2" title="alpha_A46" value="2"/>
+				    <double comment="alpha for A47" default="2" title="alpha_A47" value="2"/>
+				    <double comment="alpha for A48" default="2" title="alpha_A48" value="2"/>
+				    <double comment="alpha for A49" default="2" title="alpha_A49" value="2"/>
+				    <double comment="alpha for A50" default="2" title="alpha_A50" value="2"/>
+				    <double comment="alpha for A51" default="2" title="alpha_A51" value="2"/>
+				    <double comment="alpha for A52" default="2" title="alpha_A52" value="2"/>
+				    <double comment="alpha for A53" default="2" title="alpha_A53" value="2"/>
+				    <double comment="alpha for A54" default="2" title="alpha_A54" value="2"/>
+				    <double comment="alpha for A55" default="2" title="alpha_A55" value="2"/>
+				    <double comment="alpha for A56" default="2" title="alpha_A56" value="2"/>
+			</dir>
+			  <bool comment="Use galactic CR composition rates multiplied by A^(alpha-1)" default="false" title="GCRCompositionRates" value="false"/>
+		</dir>
+		  <dir comment="Neronov Semikoz Black Holes model spectra parameters" title="Neronov Semikoz BH">
+			  <double comment="angle (here in degrees) between magnetic field direction and BH rotation axes (typical value ~ 1 deg.)" default="1" title="NeronovBH_chi" value="1"/>
+			  <double comment="Power low in the dependence of Black hole CR luminosity on it's mass. Typical values 3/8 or 7/8" default="0.875" title="NeronovBH_LuminosityPowerLaw" value="0.875"/>
+			  <bool comment="Set Zmin for each BH mass based on it's concentration" default="true" title="NeronovBH_UseVicinityCut" value="true"/>
+			  <double comment="magnetic field B=B_edington*EdingtonBcoef*(M/M_solar)^EdingtonBalpha" default="1" title="EdingtonBcoef" value="1"/>
+			  <double comment="magnetic field B=B_edington*EdingtonBcoef*(M/M_solar)^EdingtonBalpha" default="0" title="EdingtonBalpha" value="0"/>
+		</dir>
+		  <dir comment="Point source parameters" title="Point sources">
+			  <switch comment="Point source type" default="0" title="MomentSource" value="0">
+				    <sw comment="use continuous source only" title="Off"/>
+				    <sw comment="single unnormalized source somewhere in the universe" title="Single"/>
+			</switch>
+		</dir>
+
+		<switch comment="Normalization mode" default="2" title="SourceNormMode" value="2">
+			<sw comment="Absolute source normalization given by SourceAbsNorm param" title="Absolute"/>
+        	<sw comment="Use SourceIntegrDensity in 1/Mpc^3/yr for continuous and in 1/Mpc^3 for moment source" title="Density"/>
+        	<sw comment="Use SourceIntegrEnergyDensity in ergs/Mpc^3/yr for continuous and in erg/Mpc^3 for moment source" title="Energy density"/>
+        </switch>
+		  <double comment="Absolute source normalization (internal units), use 1 for moment source with custom spec" default="1" title="SourceAbsNorm" value="1"/>
+		  <double comment="Initial (source) density in 1/Mpc^3/yr for continuous and in 1/Mpc^3 for moment source" default="2.9379989438e73" title="SourceIntegrDensity" value="2.9379989438e73"/>
+		  <double comment="Initial (source) energy density in erg/Mpc^3/yr for continuous and in erg/Mpc^3 for moment source" default="4.5e+44" title="SourceIntegrEnergyDensity" value="4.5e+44"/>
+		  <double comment="Density integration lower limit in eV. Set to 0 to use Emin" default="0" title="DensityIntegrEmin" value="0"/>
+		  <double comment="Density integration upper limit in eV. Set to 0 to use Emax" default="0" title="DensityIntegrEmax" value="0"/>
+	</dir>
+	<dir comment="excluding some processes" title="Interactions">
+		  <dir comment="Electon-photon cascade interactions" title="EM">
+			  <bool comment="turn off PP" default="false" title="NO_PP" value="false"/>
+			  <bool comment="turn off ICS" default="false" title="NO_ICS" value="false"/>
+			  <bool comment="turn off DPP" default="false" title="NO_DPP" value="false"/>
+			  <bool comment="turn off TPP" default="false" title="NO_TPP" value="false"/>
+			  <bool comment="turn off input of synchrotron to photon spectrum, note it does not turn of synchrotron energy losses of electrons" default="false" title="NO_SYNCHROTRON" value="false"/>
+			  <bool comment="disable photon splitting (process violating Lorentz invariance)" default="true" title="NO_PHOTON_SPLITTING" value="true"/>
+			  <bool comment="turn off muon pair production by photons" default="true" title="NO_MU_PP" value="true"/>
+			  <double comment="Gamma splitting characteristic energy (eV)" default="1e+19" title="GammaSplittingE0" value="1e+19"/>
+			  <double comment="Gamma splitting characteristic length (Mpc)" default="30" title="GammaSplittingL0" value="30"/>
+		</dir>
+		  <dir comment="Nucleons and Nuclei interactions" title="Nuclons and Nuclei">
+			  <bool comment="turn off PPP" default="false" title="NO_PPP" value="false"/>
+			  <bool comment="Exclude photopion production at all" default="false" title="NO_PI" value="false"/>
+			  <bool comment="turn off neutron decay" default="false" title="NO_N_DECAY" value="false"/>
+			  <bool comment="Ignore input of photopions to leptons and photons spectra" default="false" title="NO_PI_PRODUCTS" value="false"/>
+			  <bool comment="Ignore electrons and positrons from PPP" default="false" title="NO_PPP_PRODUCTS" value="false"/>
+			  <bool comment="Exclude photodisintegration of nuclei" default="false" title="NO_PHOTODISINTEGRATION" value="false"/>
+			  <bool comment="turn off photopion production for nuclei" default="false" title="NO_PI_NUCLEI" value="false"/>
+			  <bool comment="Do not take into account attenuation of nuclei in proton gas" default="true" title="NO_pA" value="true"/>
+			  <bool comment="Do not take into account interactions of nucleons with proton gas (has effect only if NO_pA=true)" default="true" title="NO_pp" value="true"/>
+			  <switch comment="Local interaction of protons with proton gas" default="0" title="LOCAL_pp" value="0">
+				    <sw comment="disable" title="Off"/>
+				    <sw comment="based on rate" title="Rate"/>
+				    <sw comment="based on grammage" title="Grammage"/>
+			 </switch>			  
+			 <string comment="path to table with local pp rate (in 1Mpc^-1) or grammage [g/cm^2] dependence on energy [eV] for pp" default="local_pp" title="LOCAL_pp_rate" value="local_pp"/>
+			 <string comment="path to table with grammage [g/cm^2] dependence on E/Z [eV] for pA. If empty, constant grammage is assumed." default="" title="pA_grammage" value=""/>
+		</dir>
+		  <dir comment="Neutrino interactions" title="Neutrino">
+			  <dir comment="Neutrino interactions (advanced)" title="Advanced">
+				    <double comment="s-channel cross section multiplier, need for debugging purposes, normally 1" default="1" title="NEUTRINO_S_CHANNEL_MULTIPLIER" value="1"/>
+				    <double comment="t-channel cross section multiplier, need for debugging purposes, normally 1" default="1" title="NEUTRINO_T_CHANNEL_MULTIPLIER" value="1"/>
+				    <int comment="Z-resonance resolution, typically 1000" default="1000" title="RESONANCE_RESOLUTION_ACCURACY" value="1000"/>
+				    <bool comment="calculate neutrino interactions s-chanel using formula from Yoshida's paper" default="false" title="Z_CHANEL_YOSHIDA" value="false"/>
+			</dir>
+			  <double comment="neutrino clustering factor (typically 100-300). Setting to 1 switches off the clustering effect" default="1" title="fNeutrinoClustering" value="1"/>
+			  <double comment="neutrino clustering length (Mpc, typically 5). Setting to 0 switches off the clustering effect" default="0" title="lNeutrinoClustering" value="0"/>
+			  <bool comment="turn off t-chanel" default="true" title="NO_NEUTRINO_t" value="true"/>
+			  <bool comment="turn off hadron part of s-chanel" default="true" title="NO_NEUTRINO_s_HADRON" value="true"/>
+			  <bool comment="turn off nonhadron part of s-chanel" default="true" title="NO_NEUTRINO_s_NON_HADRON" value="true"/>
+		</dir>
+		  <dir title="Advanced">
+			  <bool comment="mix positrons as electrons (decreases number of dimensions in Jacobian, positrons should be switched off)" default="false" title="JOIN_ELECTRON_POSITRON" value="false"/>
+			  <double comment="[ICSModeCEL mode only] maximal difference in bins for CEL use. If 0 optimal value is found based on interaction rate minimization. If negative CEL is disabled" default="0" title="ICS_CEL_MAX_BINS_DIFF" value="0"/>
+			  <double comment="[MeV] The energy below which all particles do not interact however their collection as secondaries is calculated" default="1" title="MinInteractionEnergyMeV" value="1"/>
+			  <double comment="[MeV] The energy per nucleon below which nuclei do not interact however their collection as secondaries is calculated" default="1" title="MinInteractionEnergyNucleiMeV" value="1"/>
+			  <bool comment="do not calculate spectrum below interaction range (for fast scheme only)" default="false" title="LimitToInteractionRange" value="false"/>
+			  <bool comment="output rates and backgrounds" default="false" title="COEF_TEST_ON" value="false"/>
+			  <bool comment="Enable Custom Couplings defined in CustomCouplings.cpp" default="false" title="EnableCustomCouplings" value="false"/>
+			  <dir comment="Custom Couplings parameters" title="Custom Pars">
+				    <double comment="correlated IGMF in Gauss" default="1e-15" title="ccBgauss" value="1e-15"/>
+				    <double comment="PSF half width angle in degrees (if JetOpenningAngleDeg=0, used as maximal electron deflection angle)" default="0.03" title="ccMaxDeflectionDegrees" value="0.03"/>
+				    <double comment="source jet openning (half-width) angle in degrees (set to 180 for isotropic emission)" default="180" title="ccJetOpenningAngleDeg" value="180"/>
+				    <double comment="energy scale correction factor for deflections (obtained by comparison to MC simulations)" default="1.5" title="ccDeflectionEnergyScaleCorrection" value="1.5"/>
+			</dir>
+			  <dir comment="Disable individual particles interactions" title="Particles">
+				    <bool comment="enable e interaction" default="true" title="int_e" value="true"/>
+				    <bool comment="enable ae interaction" default="true" title="int_ae" value="true"/>
+				    <bool comment="enable ph interaction" default="true" title="int_ph" value="true"/>
+				    <bool comment="enable en interaction" default="true" title="int_en" value="true"/>
+				    <bool comment="enable mn interaction" default="true" title="int_mn" value="true"/>
+				    <bool comment="enable tn interaction" default="true" title="int_tn" value="true"/>
+				    <bool comment="enable aen interaction" default="true" title="int_aen" value="true"/>
+				    <bool comment="enable amn interaction" default="true" title="int_amn" value="true"/>
+				    <bool comment="enable atn interaction" default="true" title="int_atn" value="true"/>
+				    <bool comment="enable n interaction" default="true" title="int_n" value="true"/>
+				    <bool comment="enable p interaction" default="true" title="int_p" value="true"/>
+				    <bool comment="enable A02 interaction" default="true" title="int_A02" value="true"/>
+				    <bool comment="enable A03 interaction" default="true" title="int_A03" value="true"/>
+				    <bool comment="enable A04 interaction" default="true" title="int_A04" value="true"/>
+				    <bool comment="enable A05 interaction" default="true" title="int_A05" value="true"/>
+				    <bool comment="enable A06 interaction" default="true" title="int_A06" value="true"/>
+				    <bool comment="enable A07 interaction" default="true" title="int_A07" value="true"/>
+				    <bool comment="enable A08 interaction" default="true" title="int_A08" value="true"/>
+				    <bool comment="enable A09 interaction" default="true" title="int_A09" value="true"/>
+				    <bool comment="enable A10 interaction" default="true" title="int_A10" value="true"/>
+				    <bool comment="enable A11 interaction" default="true" title="int_A11" value="true"/>
+				    <bool comment="enable A12 interaction" default="true" title="int_A12" value="true"/>
+				    <bool comment="enable A13 interaction" default="true" title="int_A13" value="true"/>
+				    <bool comment="enable A14 interaction" default="true" title="int_A14" value="true"/>
+				    <bool comment="enable A15 interaction" default="true" title="int_A15" value="true"/>
+				    <bool comment="enable A16 interaction" default="true" title="int_A16" value="true"/>
+				    <bool comment="enable A17 interaction" default="true" title="int_A17" value="true"/>
+				    <bool comment="enable A18 interaction" default="true" title="int_A18" value="true"/>
+				    <bool comment="enable A19 interaction" default="true" title="int_A19" value="true"/>
+				    <bool comment="enable A20 interaction" default="true" title="int_A20" value="true"/>
+				    <bool comment="enable A21 interaction" default="true" title="int_A21" value="true"/>
+				    <bool comment="enable A22 interaction" default="true" title="int_A22" value="true"/>
+				    <bool comment="enable A23 interaction" default="true" title="int_A23" value="true"/>
+				    <bool comment="enable A24 interaction" default="true" title="int_A24" value="true"/>
+				    <bool comment="enable A25 interaction" default="true" title="int_A25" value="true"/>
+				    <bool comment="enable A26 interaction" default="true" title="int_A26" value="true"/>
+				    <bool comment="enable A27 interaction" default="true" title="int_A27" value="true"/>
+				    <bool comment="enable A28 interaction" default="true" title="int_A28" value="true"/>
+				    <bool comment="enable A29 interaction" default="true" title="int_A29" value="true"/>
+				    <bool comment="enable A30 interaction" default="true" title="int_A30" value="true"/>
+				    <bool comment="enable A31 interaction" default="true" title="int_A31" value="true"/>
+				    <bool comment="enable A32 interaction" default="true" title="int_A32" value="true"/>
+				    <bool comment="enable A33 interaction" default="true" title="int_A33" value="true"/>
+				    <bool comment="enable A34 interaction" default="true" title="int_A34" value="true"/>
+				    <bool comment="enable A35 interaction" default="true" title="int_A35" value="true"/>
+				    <bool comment="enable A36 interaction" default="true" title="int_A36" value="true"/>
+				    <bool comment="enable A37 interaction" default="true" title="int_A37" value="true"/>
+				    <bool comment="enable A38 interaction" default="true" title="int_A38" value="true"/>
+				    <bool comment="enable A39 interaction" default="true" title="int_A39" value="true"/>
+				    <bool comment="enable A40 interaction" default="true" title="int_A40" value="true"/>
+				    <bool comment="enable A41 interaction" default="true" title="int_A41" value="true"/>
+				    <bool comment="enable A42 interaction" default="true" title="int_A42" value="true"/>
+				    <bool comment="enable A43 interaction" default="true" title="int_A43" value="true"/>
+				    <bool comment="enable A44 interaction" default="true" title="int_A44" value="true"/>
+				    <bool comment="enable A45 interaction" default="true" title="int_A45" value="true"/>
+				    <bool comment="enable A46 interaction" default="true" title="int_A46" value="true"/>
+				    <bool comment="enable A47 interaction" default="true" title="int_A47" value="true"/>
+				    <bool comment="enable A48 interaction" default="true" title="int_A48" value="true"/>
+				    <bool comment="enable A49 interaction" default="true" title="int_A49" value="true"/>
+				    <bool comment="enable A50 interaction" default="true" title="int_A50" value="true"/>
+				    <bool comment="enable A51 interaction" default="true" title="int_A51" value="true"/>
+				    <bool comment="enable A52 interaction" default="true" title="int_A52" value="true"/>
+				    <bool comment="enable A53 interaction" default="true" title="int_A53" value="true"/>
+				    <bool comment="enable A54 interaction" default="true" title="int_A54" value="true"/>
+				    <bool comment="enable A55 interaction" default="true" title="int_A55" value="true"/>
+				    <bool comment="enable A56 interaction" default="true" title="int_A56" value="true"/>
+			</dir>
+		</dir>
+	</dir>
+	<dir comment="Program output" title="Runtime info">
+		  <dir comment="Program version info" title="Version">
+			  <string comment="version info obtained with svnversion command or 0 if it is not available" default="0" title="Revision" value="0"/>
+			  <int comment="diff file hash or 0 if it is clean version or -1 if version info is not available" default="0" title="DifHash" value="0"/>
+		</dir>
+		<dir comment="List of missing parameters with their default values" title="Missing Parameters">
+        	<int comment="Number of missing parameters" default="0" title="MissingParamsCount" value="0"/>
+        </dir>
+	</dir>
+</dir>

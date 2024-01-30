@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!ELEMENT sw EMPTY >
+<!ATTLIST sw title NMTOKEN #REQUIRED >
+<!ATTLIST sw comment CDATA #IMPLIED >
+
+<!ELEMENT bool EMPTY >
+<!ATTLIST bool value ( false | true ) #REQUIRED >
+<!ATTLIST bool title ID #REQUIRED >
+<!ATTLIST bool comment CDATA #IMPLIED >
+<!ATTLIST bool default ( false | true ) #REQUIRED >
+
+<!ELEMENT int EMPTY >
+<!ATTLIST int value NMTOKEN #REQUIRED >
+<!ATTLIST int title NMTOKEN #REQUIRED >
+<!ATTLIST int comment CDATA #IMPLIED >
+<!ATTLIST int default NMTOKEN #REQUIRED >
+
+<!ELEMENT switch ( sw+ ) >
+<!ATTLIST switch value NMTOKEN #REQUIRED >
+<!ATTLIST switch title NMTOKEN #REQUIRED >
+<!ATTLIST switch comment CDATA #IMPLIED >
+<!ATTLIST switch default NMTOKEN #REQUIRED >
+
+<!ELEMENT dir ( (dir | double | int | bool | switch | string)* ) >
+<!ATTLIST dir title CDATA #REQUIRED >
+<!ATTLIST dir comment CDATA #IMPLIED >
+
+<!ELEMENT double EMPTY >
+<!ATTLIST double value CDATA #REQUIRED >
+<!ATTLIST double title NMTOKEN #REQUIRED >
+<!ATTLIST double comment CDATA #IMPLIED >
+<!ATTLIST double default CDATA #REQUIRED >
+
+<!ELEMENT string EMPTY >
+<!ATTLIST string value CDATA #REQUIRED >
+<!ATTLIST string title NMTOKEN #REQUIRED >
+<!ATTLIST string comment CDATA #IMPLIED >
+<!ATTLIST string default CDATA #REQUIRED >
