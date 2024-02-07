@@ -15,6 +15,14 @@ enum EParameterType{
 	endParameterTypeE
 };
 
+enum NormMode{
+    NormalizeAbsolute = 0,
+    NormalizeDensity,
+    NormalizeEnergyDensity,
+
+    EndNormMode
+};
+
 class IParReader
 {
 public:

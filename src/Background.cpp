@@ -274,7 +274,8 @@ void CBackgroundTable::update(double aZ/*redshift*/)
 
 CompoundBackground::CompoundBackground(double aEmin, double aEmax):
         m_Emin(aEmin),
-        m_Emax(aEmax)
+        m_Emax(aEmax),
+        m_overriden_backgr_weight(1.)
 {
 }
 
@@ -298,9 +299,10 @@ void CompoundBackground::addComponent(IBackgroundSpectrum* aComponent, double aW
 	m_weights.push_back(aWeight);
 }
 
-void CompoundBackground::replacePart(IBackgroundSpectrum* aComponent)
+void CompoundBackground::replacePart(IBackgroundSpectrum* aComponent, double aWeight)
 {
 	m_overriden_backgr = aComponent;
+    m_overriden_backgr_weight = aWeight;
 }
 
 bool CompoundBackground::init()
@@ -324,7 +326,7 @@ double CompoundBackground::F(double E, double z)
     double result = 0.;
     if((IBackgroundSpectrum*)m_overriden_backgr && m_overriden_backgr->MaxZ()>=z && m_overriden_backgr->MinE(z)<=E &&
             m_overriden_backgr->MaxE(z)>=E)
-        result = m_overriden_backgr->F(E, z);
+        result = m_overriden_backgr->F(E, z) * m_overriden_backgr_weight;
     else {
         int nC = m_components.length();
         for (int i = 0; i < nC; i++) {

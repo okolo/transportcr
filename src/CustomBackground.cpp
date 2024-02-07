@@ -3,26 +3,16 @@
 //
 
 #include "CustomBackground.h"
-#include "Units.h"
 #include <cmath>
 
 CustomBackground::CustomBackground() :
         fEmin(100),
-        fEcut(1e6),
-        fNormN(1.)
+        fEcut(1e6)
 {
-
 }
 
 bool CustomBackground::init()
 {
-    double norm_luminosity = 1e44 * units.erg / units.sec;  // visible luminosity of the source in internal units
-    double radius = 1e13 * units.cm;  // radius of the region filled with the radiation
-    double nE = fNormN / units.cm3 * fEcut * log(fEcut/fEmin); // energy density in internal units assuming dn/dE ~ 1/E^2
-    double luminosity = 2*M_PI*radius*radius*nE; // luminosity in internal units before normalization
-    fNormN *= norm_luminosity/luminosity;  // norm factor to achieve visible luminosity
-    fNormN /= 3.7753932507E-10; // temporary fix
-    fNormN  *= 0.00044;
     return true;
 }
 
@@ -31,7 +21,7 @@ bool CustomBackground::init()
 double CustomBackground::F(double E, double z)
 {
     double e = E/fEcut;
-    return fNormN * exp(-e) / e; // E^{-1} * exp (-E/Ecut)
+    return exp(-e) / e; // E^{-1} * exp (-E/Ecut)
 }
 
 //returns maximal background red shift

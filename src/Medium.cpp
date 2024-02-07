@@ -196,6 +196,8 @@ IBackgroundSpectrum* Medium::AddIRBebl()
 	{
 		double iroMult = 1.;
 		READ_DOUBLE_SETTING(iroMult);
+        NormMode IROBackgroundNormMode = NormalizeAbsolute;
+        READ_SWITCH_SETTING(IROBackgroundNormMode, EndNormMode);
 		if(iroMult>0)
 		{
 			double IRO_extensionDeltaZconst = -1;//see HighRedshiftBackgrExtension
@@ -208,6 +210,15 @@ IBackgroundSpectrum* Medium::AddIRBebl()
 				READ_DOUBLE_SETTING(IRO_extensionDeltaZexp);
 				iro = new HighRedshiftBackgrExtension(iro, IRO_extensionDeltaZconst, IRO_extensionPowerLow, IRO_extensionDeltaZexp);
 			}
+
+            switch (IROBackgroundNormMode) {
+                case NormalizeDensity:
+                    iroMult = iroMult/BackgroundUtils::CalcIntegralDensity(*iro, 0);
+                    break;
+                case NormalizeEnergyDensity:
+                    iroMult = iroMult/BackgroundUtils::CalcIntegralPowerDensity(*iro, 0);
+                    break;
+            }
 			fEBL->addComponent(iro, iroMult);
 		}
 	}
@@ -354,10 +365,24 @@ IBackgroundSpectrum* Medium::GetEBL()
             else
                 ThrowError("unsupported CustomBackgroundFormat");
 
+            NormMode CustomBackgroundNormMode = NormalizeEnergyDensity;
+            double CustomBackgroundNorm = 1.;
+            READ_SWITCH_SETTING(CustomBackgroundNormMode, EndNormMode);
+            READ_DOUBLE_SETTING(CustomBackgroundNorm);
+            if(CustomBackgroundNormMode != NormalizeAbsolute) {
+                double n = 0.;
+                if(CustomBackgroundNormMode == NormalizeDensity)
+                    n = BackgroundUtils::CalcIntegralDensity(*b, 0);
+                else if(CustomBackgroundNormMode == NormalizeDensity)
+                    n = BackgroundUtils::CalcIntegralPowerDensity(*b, 0);
+                else
+                    throw "Invalid CustomBackgroundNormMode parameter";
+                CustomBackgroundNorm = CustomBackgroundNorm/n;
+            }
             if(customBackgroundUse == CustomBackgroundAdd)
-			    fEBL->addComponent(b);
+			    fEBL->addComponent(b, CustomBackgroundNorm);
             else if(customBackgroundUse == CustomBackgroundReplace)
-                fEBL->replacePart(b);
+                fEBL->replacePart(b, CustomBackgroundNorm);
             else
                 NOT_IMPLEMENTED;
 

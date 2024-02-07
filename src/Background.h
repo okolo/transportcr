@@ -60,7 +60,9 @@ public:
 class BackgroundUtils
 {
 public:
+    // Calculate integral density in cm^-3
 	static double CalcIntegralDensity(IBackgroundSpectrum& aBackground, double aZ, double aRelError=1e-3);
+    // Calculate integral energy density in eV * cm^-3
 	static double CalcIntegralPowerDensity(IBackgroundSpectrum& aBackground, double aZ, double aRelError=1e-3);
 };
 
@@ -150,7 +152,7 @@ public:
     CompoundBackground(double aEmin=0, double aEmax=1e100);
     CompoundBackground(CompoundBackground* aCopyFrom);
 	void addComponent(IBackgroundSpectrum* aComponent, double aWeight=1.);
-    void replacePart(IBackgroundSpectrum* aComponent);
+    void replacePart(IBackgroundSpectrum* aComponent, double aWeight=1.);
 
 	virtual bool init();
 	virtual double F(double E, double z);
@@ -161,6 +163,7 @@ public:
 protected:
 	CSmartPointerArray<IBackgroundSpectrum>	m_components;
     SmartPtr<IBackgroundSpectrum>           m_overriden_backgr;
+    double                                  m_overriden_backgr_weight;
 	std::vector<double>						m_weights;
 	double                                  m_Emin;
 	double                                  m_Emax;

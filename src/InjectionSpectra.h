@@ -105,13 +105,6 @@ private:
 	EZminModeFixed = 0,
 	EZminModeBlackHole
 	};
-	enum NormMode{
-		NormalizeAbsolute = 0,
-		NormalizeDensity,
-		NormalizeEnergyDensity,
-
-		EndNormMode
-	};
 
 	static bool   s_autoNucleiRates;
 	

@@ -23,7 +23,7 @@
 			  <bool comment="Take into account redshift as continuous energy loss" default="true" title="CELredshift" value="true"/>
 			  <bool comment="do not extrapolate coeffitients on z" default="false" title="NO_Z_COEF_EXTRAPOLATION" value="false"/>
 			  <bool comment="decrease steps if needed based on interaction rates" default="false" title="Runtime_step_correction" value="false"></bool>
-			  <double comment="energy density quantile to use for rate based step correction" default="0.99" title="StepCorrectionQuantile" value="0.999"/>
+			  <double comment="energy density quantile to use for rate based step correction" default="0.999" title="StepCorrectionQuantile" value="0.999"/>
 		</dir>
 		  <dir comment="Calculation regime" title="Regime">
 		  	<switch default="0" title="CalcMode" value="0">
@@ -156,12 +156,23 @@
                   <sw comment="use matrix table input format (see MatrixBackground class)" title="Matrix"/>
                   <sw comment="Defined in CustomBackground.cpp" title="Analytic"/>
             </switch>
-            <switch comment="Custom background evolution for table format only" default="0" title="CustomBackgroundEvolution" value="0">
-                   <sw comment="constant in comoving volume (always used for analytic)" title="ConstantComoving"/>
-                   <sw comment="same as selected IR/O model evolution at given energy (used for plain 2 column format only)" title="Proportional"/>
-                   <sw comment="constant in physical volume (used for table format only)" title="ConstantPhysical"/>
+            <switch comment="Analythic Custom background normalization" default="0" title="CustomBackgroundNormMode" value="0">
+            	<sw comment="Absolute source normalization given by CustomBackgroundNorm param" title="Absolute"></sw>
+                <sw comment="Integral density at z=0 in cm^-3 given by CustomBackgroundNorm param" title="Density"></sw>
+                <sw comment="Integral energy density at z=0 in eV cm^-3 given by CustomBackgroundNorm param" title="Energy density"></sw>
             </switch>
-			  <string comment="path to table with custom background (E/eV and E*dN/dE/cm^-3)" default="tables/customEBL" title="custom_backgr_file" value="tables/customEBL"/>
+            <double comment="Custom Background Norm Factor" default="1" title="CustomBackgroundNorm" value="1"></double>
+            <switch comment="Custom background evolution for table format only" default="0" title="CustomBackgroundEvolution" value="0">
+                <sw comment="constant in comoving volume (always used for analytic)" title="ConstantComoving"></sw>
+                <sw comment="same as selected IR/O model evolution at given energy (used for plain 2 column format only)" title="Proportional"></sw>
+                <sw comment="constant in physical volume (used for table format only)" title="ConstantPhysical"></sw>
+            </switch>
+			  <string comment="path to table with custom background (E/eV and E*dN/dE/cm^-3)" default="tables/custom_ebl" title="custom_backgr_file" value="tables/custom_ebl"></string>
+			  <switch comment="IR/O background multiplier Mode" default="0" title="IROBackgroundNormMode" value="0">
+                <sw comment="Absolute source normalization given by iroMult param" title="Absolute"></sw>
+                <sw comment="Integral density at z=0 in cm^-3 given by iroMult param" title="Density"></sw>
+                <sw comment="Integral energy density at z=0 in eV cm^-3 given by iroMult param" title="Energy density"></sw>
+              </switch>
 			  <double comment="IR/O background multiplier, normally equal to 1" default="1" title="iroMult" value="1"/>
 			  <double comment="Background Lower cut in eV (set to 0 to disable)" default="0" title="BackgroundLowerCut_eV" value="0"/>
 			  <double comment="Background Upper cut in eV (set to large value to disable)" default="1E100" title="BackgroundUpperCut_eV" value="1E100"/>

@@ -9,7 +9,7 @@
 #include "Background.h"
 
 class CustomBackground :
-        public IBackgroundSpectrum {
+        public IBackgroundSpectrum, protected Parameters {
 public:
     CustomBackground();
     virtual bool init();
@@ -28,7 +28,6 @@ public:
 protected:
     double fEmin;
     double fEcut;
-    double fNormN;
 };
 
 
