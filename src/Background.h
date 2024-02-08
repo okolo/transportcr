@@ -8,8 +8,16 @@ extern double E_opt_min;//infrared/optic background minimal energy [eV]
 class CTableFunction;
 
 class IBackgroundSpectrum : public TReferencedObj{
+protected:
+    IBackgroundSpectrum():
+    is_initialized(false){}
 public:
-	virtual bool init(){return true;};
+    inline bool init_once(){
+        if (is_initialized)
+            return true;
+        is_initialized = init();
+        return is_initialized;
+    }
 	/* Photon spectrum E*dn/dE in sm^-3 [E]=eV in comoving volume
 	  (must be multiplied by (1+z)^3 before substituting farther)*/
 	virtual double F(double E, double z) = 0;
@@ -22,6 +30,10 @@ public:
 
 	//returns minimal background energy in eV
 	virtual double MinE(double aZmax) const = 0;
+protected:
+    virtual bool init(){return true;};
+private:
+    bool is_initialized;
 };
 
 class CuttedBackgroundSpectrum : public IBackgroundSpectrum{
@@ -34,7 +46,7 @@ public:
             fMinE(aMinE), // eV
             fMaxE(aMaxE)  // eV
             {}
-    virtual bool init(){ return fBackground->init(); }
+    virtual bool init(){ return fBackground->init_once(); }
     /* Photon spectrum E*dn/dE in sm^-3 [E]=eV in comoving volume
       (must be multiplied by (1+z)^3 before substituting farther)*/
     virtual double F(double E, double z){

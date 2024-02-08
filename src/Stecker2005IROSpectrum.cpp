@@ -118,7 +118,7 @@ Stecker2012IROSpectrum::Stecker2012IROSpectrum(bool aUpperLevel):
 bool Stecker2012IROSpectrum::init()
 {
 	bool result = f2005spec.init();
-	result = f2012specUV.init() && result;
+	result = f2012specUV.init_once() && result;
 	fMaxZ = f2012specUV.MaxZ() > f2005spec.MaxZ() ? f2005spec.MaxZ() : f2012specUV.MaxZ();
 	return result;
 }

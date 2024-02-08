@@ -210,7 +210,7 @@ IBackgroundSpectrum* Medium::AddIRBebl()
 				READ_DOUBLE_SETTING(IRO_extensionDeltaZexp);
 				iro = new HighRedshiftBackgrExtension(iro, IRO_extensionDeltaZconst, IRO_extensionPowerLow, IRO_extensionDeltaZexp);
 			}
-
+            iro->init_once(); // must init before normalization
             switch (IROBackgroundNormMode) {
                 case NormalizeDensity:
                     iroMult = iroMult/BackgroundUtils::CalcIntegralDensity(*iro, 0);
@@ -364,7 +364,7 @@ IBackgroundSpectrum* Medium::GetEBL()
             }
             else
                 ThrowError("unsupported CustomBackgroundFormat");
-
+            b->init_once(); // we need to init the background to calculate integral density
             NormMode CustomBackgroundNormMode = NormalizeEnergyDensity;
             double CustomBackgroundNorm = 1.;
             READ_SWITCH_SETTING(CustomBackgroundNormMode, EndNormMode);
@@ -388,7 +388,7 @@ IBackgroundSpectrum* Medium::GetEBL()
 
 			CopyFileOrDir(custom_backgr_file, plt_local_dir + DIR_DELIMITER_STR);
 		}
-		fEBL->init();
+		fEBL->init_once();
         double density = BackgroundUtils::CalcIntegralDensity(*fEBL, 0);
         cerr << "background density at z=0 [cm^-3]: " << density << endl;
 	}

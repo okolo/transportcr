@@ -310,9 +310,9 @@ bool CompoundBackground::init()
 	int nC = m_components.length();
 	bool result = true;
 	for(int i=0; i<nC; i++)
-		result = m_components[i]->init() && result;
+		result = m_components[i]->init_once() && result;
 	if((IBackgroundSpectrum*)m_overriden_backgr)
-		result = m_overriden_backgr->init() && result;
+		result = m_overriden_backgr->init_once() && result;
 
     VERIFY_VALID_NO(MaxE(0) - MinE(0));
 
@@ -410,7 +410,7 @@ bool HighRedshiftBackgrExtension::init()
 {
 	if(fInnerZmax>0)
 		return true;//already initialized
-	if(!fBackground->init())
+	if(!fBackground->init_once())
 		return false;
 	fInnerZmax = fBackground->MaxZ();
 	fZconst+=fInnerZmax;
