@@ -14,6 +14,26 @@ e-Print: [1406.0735 astro-ph.HE](https://arxiv.org/abs/1406.0735)
 
 DOI: 10.1134/S1063776115040056
 
+## Installation
+
+#### Install prerequisites
+
+On Ubuntu Linux
+
+```bash
+$ sudo apt install cmake make gcc g++ gfortran git git-lfs libxerces-c-dev libgsl-dev
+```
+
+#### Compile program
+
+```bash
+$ git clone https://github.com/okolo/transportcr.git
+$ cd transportcr/bin
+$ git lfs install
+$ git lfs pull
+$ . install.sh
+```
+
 ## 3rd party codes used:
 
 For p-p interactions we use [ppfrag v3](http://sourceforge.net/projects/ppfrag)
