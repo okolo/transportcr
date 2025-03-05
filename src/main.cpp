@@ -2,6 +2,9 @@
 #include <iostream>
 #include <stdlib.h>
 #include "Addfunc.h"
+#include <stdio.h>
+#include <signal.h>
+
 //#include "Prodspec.h"
 #include <string.h>
 #include "time.h"
@@ -30,6 +33,11 @@
 #include "MassiveNeutrino.h"
 #include "Galaxy.h"
 #include "BLLac.h"
+
+void SIGSEGV_handler(int sig) {
+    print_stack_trace();
+    exit(1);
+}
 
 void Application::GslFrrorHandler (const char * reason,
         const char * file,
@@ -70,6 +78,7 @@ const char* plt_local_c;
 
 int main(int argc,char *argv[])
 {
+    signal(SIGSEGV, SIGSEGV_handler);
 	return Application::main(argc, argv);
 }
 
@@ -135,6 +144,7 @@ int Application::main(int argc,char *argv[])
 			usageExit();
 	}catch (const char* errMsg) {
 		cerr << errMsg << endl;
+        print_saved_stack_trace();
 	}
 
 	CopyFileOrDir(argv[1],switchFileCopy);

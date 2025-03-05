@@ -5,6 +5,21 @@
 #include <string.h>
 #include <fstream>
 #include <dirent.h>
+#include <stdio.h>
+
+void *backtrace_array[BACKTRACE_MAX_SIZE];
+char **stack_trace_symbols = NULL;
+size_t stack_trace_size = 0;
+
+void print_saved_stack_trace() {
+    fprintf(stderr, "Stack trace:\n");
+    for (size_t i = 0; i < stack_trace_size; i++) {
+        fprintf(stderr, "%s\n", stack_trace_symbols[i]);  // Function names may not appear without -rdynamic
+    }
+    free(stack_trace_symbols);
+    stack_trace_symbols = NULL;
+    stack_trace_size = 0;
+}
 
 using namespace std;
 
@@ -25,7 +40,8 @@ static std::string errorBuffer;
 
 void ThrowError(std::string aMsg)
 {
-	errorBuffer = aMsg;
+    errorBuffer = aMsg;
+    save_stack_trace();
 	throw errorBuffer.c_str();
 }
 

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <execinfo.h>
 
 #ifdef USE_GSL
 #include <gsl/gsl_vector_double.h>
@@ -68,6 +69,18 @@ enum EReturnCode
 	//retInvalidValue = 22
 };
 
+#define BACKTRACE_MAX_SIZE 20
+extern void *backtrace_array[];
+extern char **stack_trace_symbols;
+extern size_t stack_trace_size;
+extern void print_saved_stack_trace();
+inline void save_stack_trace() {
+    if (stack_trace_symbols)
+        free(stack_trace_symbols); // clear saved info
+    // get void*'s for all entries on the stack
+    stack_trace_size = backtrace(backtrace_array, BACKTRACE_MAX_SIZE);
+    stack_trace_symbols = backtrace_symbols(backtrace_array, stack_trace_size);
+}
 void ThrowError(std::string aMsg);//safely throw error (aMsg can be stack variable)
 void MemoryExit(const char* str=NULL);
 void OpenExit(string str);

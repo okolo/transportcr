@@ -2,13 +2,30 @@
 #define DEBUG_H_INCLUDED
 
 #include <assert.h>
+#include <stdio.h>
+#include <execinfo.h>
+#include <unistd.h>
+
+#define BACKTRACE_SIZE 10
+
+
+
+inline void print_stack_trace() {
+    void *array[10];
+    size_t size;
+    // get void*'s for all entries on the stack
+    size = backtrace(array, 10);
+    // print out all the frames to stderr
+    backtrace_symbols_fd(array, size, STDERR_FILENO);
+}
 
 #ifdef _DEBUG
 
 extern void debugBreakpoint();
 
 #define ASSERT(f) {if(!(f))\
-{\
+{                          \
+    print_stack_trace();   \
 	debugBreakpoint();\
 	assert(f);\
 };}// assert(f) will print information about condition <f> and place of error

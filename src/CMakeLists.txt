@@ -31,6 +31,13 @@ include_directories(3rd-party/include)
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall -O2")
+
+# -rdynamic flux is only supported on systems with ELF executable format
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -rdynamic")
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 set(CMAKE_PREFIX_PATH "3rd-party")
 
 FIND_LIBRARY(C_LIBRARY c)
