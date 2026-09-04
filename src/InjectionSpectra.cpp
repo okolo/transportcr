@@ -206,7 +206,8 @@ m_enableCutOff(aEnableCutOff)
 	READ_DOUBLE_SETTING(injSpectraLowerCutoff);
 	READ_DOUBLE_SETTING(injSpectraLowerCutoffWidth);
 	READ_DOUBLE_SETTING(injSpectraHigherCutoff);
-    READ_DOUBLE_SETTING(injSpectraPowerCut);
+	READ_SWITCH_SETTING(injSpectraHigherCutoffMode, EHigherCutoffModeEOF);
+	READ_DOUBLE_SETTING(injSpectraPowerCut);
     READ_DOUBLE_SETTING(injSpectraPowerCutEnergy); // eV
 
 
@@ -280,6 +281,7 @@ double CInjectionSpectra::injSpectraLowerCutoff = 0.;
 double CInjectionSpectra::injSpectraLowerAbsCutoff = 0.;
 double CInjectionSpectra::injSpectraLowerCutoffWidth = 3.5;
 double CInjectionSpectra::injSpectraHigherCutoff = 2.;
+CInjectionSpectra::THigherCutoffMode CInjectionSpectra::injSpectraHigherCutoffMode = CInjectionSpectra::ELegacyExponential;
 double CInjectionSpectra::injSpectraPowerCut = 0.3;
 double CInjectionSpectra::injSpectraPowerCutEnergy = 1e23;
 int CInjectionSpectra::s_MaxEMode = CInjectionSpectra::ECommonMaxE;
@@ -579,7 +581,21 @@ double CInjectionSpectra::SourceCutoffFactor(double aE/*MeV*/, TParticle aPartic
 	double result = 1.;
 
 	if(injSpectraHigherCutoff<1)
-		result *= Exp(-aE/(injSpectraHigherCutoff*maxE));
+	{
+		double x = aE/(injSpectraHigherCutoff*maxE);
+		switch(injSpectraHigherCutoffMode)
+		{
+			case ELegacyExponential:
+				result *= Exp(-x);
+				break;
+			case EPiecewiseExponential:
+				if(x>1.)
+					result *= Exp(1.-x);
+				break;
+			default:
+				ASSERT(false);
+		}
+	}
 
 	double power_cut = aE*1e6 / injSpectraPowerCutEnergy;
     if(power_cut > 1.)

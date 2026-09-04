@@ -327,6 +327,10 @@
 		  <double comment="(0.0-1.0) position of lower cutoff of the injection spectra in units of Emax [only has effect if injSpectraLowerAbsCutoff=0]" default="0" title="injSpectraLowerCutoff" value="0"/>
 		  <double comment="length in decades at which injection spectra is suppressed by factor of 10" default="3.5" title="injSpectraLowerCutoffWidth" value="3.5"/>
 		  <double comment="(0.0-1.0, if more than 1, no cutoff) position of higher exponential cutoff in units of Emax" default="2" title="injSpectraHigherCutoff" value="2"/>
+		  <switch comment="Higher injection spectrum cutoff mode" default="0" title="injSpectraHigherCutoffMode" value="0">
+			    <sw comment="Apply exp(-x) over the entire spectrum" title="Legacy exponential"/>
+			    <sw comment="Apply 1 for x &lt;= 1 and exp(1-x) for x &gt; 1" title="Piecewise exponential"/>
+		  </switch>
 		  <double comment="position of power cut in eV" default="1e25" title="injSpectraPowerCutEnergy" value="1e25"/>
           <double comment="multiply by E/injSpectraPowerCutEnergy^{-injSpectraPowerCut} above injSpectraPowerCutEnergy" default="0.3" title="injSpectraPowerCut" value="0.3"/>
 		  <double comment="Black hole mass in units of solar mass" default="1e+06" title="BlackHoleMass" value="1e+06"/>
