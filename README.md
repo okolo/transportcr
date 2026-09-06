@@ -31,7 +31,7 @@ $ git clone https://github.com/okolo/transportcr.git
 $ cd transportcr/bin
 $ git lfs install
 $ git lfs pull
-$ . install.sh
+$ ./build.sh
 ```
 
 ## 3rd party codes used:
