@@ -239,9 +239,9 @@ void Application::run()
 
 	READ_DOUBLE_SETTING(MinInteractionEnergyMeV);
     READ_DOUBLE_SETTING(MinInteractionEnergyNucleiMeV);
-	double H_in_km_s_Mpc = 71;
+	double H_in_km_s_Mpc = 68.17; // DESI DR2 + CMB flat LambdaCDM (2025)
 	READ_DOUBLE_SETTING(H_in_km_s_Mpc);
-	double Lv = 0.73;//default value
+	double Lv = 0.6973; // Omega_Lambda = 1 - Omega_m
 	READ_DOUBLE_SETTING(Lv);
 
 	SmartPtr<CInjectionSpectra> spec = CreateSource();

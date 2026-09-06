@@ -79,8 +79,8 @@
 			</dir>
 		</dir>
 		  <dir comment="Cosmological parameters" title="Cosmology">
-			  <double comment="Hubble constant in km/s/Mpc" default="67.8" title="H_in_km_s_Mpc" value="67.8"/>
-			  <double comment="Omega vacuum: 0&lt;=Lv&lt;1" default="0.692" title="Lv" value="0.692"/>
+			  <double comment="Hubble constant in km/s/Mpc" default="68.17" title="H_in_km_s_Mpc" value="68.17"/>
+			  <double comment="Omega vacuum: 0&lt;=Lv&lt;1" default="0.6973" title="Lv" value="0.6973"/>
 		</dir>
 		  <dir comment="Simulate propagation for the following particles only" title="Propagating particles">
 			  <bool comment="electrons" default="true" title="calc_e" value="true"/>
