@@ -203,3 +203,25 @@ Use `--force` to overwrite an existing extracted spectrum.
 
 The time interval is calculated for a flat Lambda-CDM cosmology using
 `H_in_km_s_Mpc` and `Lv` from the original XSW file.
+
+## Tests
+
+Run the automated tests from the repository root:
+
+```sh
+python3 -m unittest discover -s tools/tests -t tools -v
+```
+
+The default suite uses only the Python standard library and does not run the
+TransportCR simulation. It covers XSW parameter handling, spectrum
+combination, `addPar`, preparation and extraction of moment-source spectra,
+and the declared console entry points.
+
+An optional installation smoke test creates a temporary virtual environment
+and performs an editable installation. It may need access to the Python
+package index to obtain the declared build dependency:
+
+```sh
+TRANSPORTCR_TEST_EDITABLE_INSTALL=1 \
+  python3 -m unittest tools.tests.test_entry_points -v
+```
