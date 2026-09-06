@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "transportcr-tools"
+version = "0.1.0"
+description = "Command-line utilities for TransportCR configuration and spectra"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+getPar = "getPar:main"
+replacePar = "replacePar:main"
+add = "add:main"
+addPar = "addPar:main"
+helpPar = "helpPar:main"
+prepare_moment_source = "prepare_moment_source:main"
+extract_moment_source = "extract_moment_source:main"
+
+[tool.setuptools]
+py-modules = [
+    "add",
+    "addPar",
+    "extract_moment_source",
+    "getPar",
+    "helpPar",
+    "moment_source_utils",
+    "prepare_moment_source",
+    "replacePar",
+    "xsw_utils",
+]
