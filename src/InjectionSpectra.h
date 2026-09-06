@@ -82,6 +82,13 @@ protected:
 	static double injSpectraLowerAbsCutoff;
 	static double injSpectraLowerCutoffWidth;
 	static double injSpectraHigherCutoff;
+	enum THigherCutoffMode{
+		ELegacyExponential = 0,
+		EPiecewiseExponential,
+
+		EHigherCutoffModeEOF
+	};
+	static THigherCutoffMode injSpectraHigherCutoffMode;
 	static double injSpectraPowerCut;
     static double injSpectraPowerCutEnergy;
 	static double s_rates[EEndAllParticles];
