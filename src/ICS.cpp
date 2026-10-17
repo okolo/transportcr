@@ -394,12 +394,13 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 			double aK=Fb*cs.RICS(E,b);
 			ae[j]+=aK;
 			f_intPrdrGamma[j]+=Fb*cs.intPrdrICSph(E, b);
+			const double maxPhotonEnergy = E*cs.rMaxICSph(E*b);
 #ifdef ICS_DEBUG
 			double eLossK = Fb*cs.EnergyLossICS(E*b);
 			double deltaErel = eLossK/aK;//typical fraction of energy lost in single interaction
 #endif
 			{//be
-				func.P = PICSe;
+				func.P = PICSph;
 #ifdef ICS_DEBUG
 				double deltaEbins = -log(1.-deltaErel)/log(BC().ss1);//mean difference in bins between primary and secondary electron
 				double Psum = 0;
@@ -407,10 +408,16 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 				int iLast = -1;
 				int iFirst = -1;
 #endif
+				// Integrate in photon energy to resolve the narrow forward peak
+				// without subtracting nearly equal electron energies in PICSe.
 				double E1=Emin*BC().ss1;
 				for(int i=0;i<=j;i++,E1*=BC().ss1)
 				{
-					double bK = Fb*funcUtils.gsl_integration_qag(&func, E1*BC().ss_1, E1<E ? E1 : E, maxAbsError, maxRelError, maxSubIntervals); //E1*sss*(a1*tem1+a1*tem2+a2*(cs.PICSe(E,b,x2*E1)+cs.PICSe(E,b,x4*E1))+a3*cs.PICSe(E,b,x3*E1))*Fb;
+					const double lower = E1<E ? E-E1 : 0.;
+					double upper = E-E1*BC().ss_1;
+					if(upper>maxPhotonEnergy)
+						upper = maxPhotonEnergy;
+					double bK = upper>lower ? Fb*funcUtils.gsl_integration_qag(&func, lower, upper, maxAbsError, maxRelError, maxSubIntervals) : 0.;
 					ASSERT_VALID_NO(bK);
 					be[i][j] += bK;
 #ifdef ICS_DEBUG
@@ -447,7 +454,9 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 				double E1=Emin*BC().ss1;
 				for(int i=0;i<=j;i++,E1*=BC().ss1)
 				{
-					double bK = Fb*funcUtils.gsl_integration_qag(&func, E1*BC().ss_1, E1<E ? E1 : E, maxAbsError, maxRelError, maxSubIntervals); //E1*sss*(a1*tem1+a1*tem2+a2*(cs.PICSe(E,b,x2*E1)+cs.PICSe(E,b,x4*E1))+a3*cs.PICSe(E,b,x3*E1))*Fb;
+					const double lower = E1*BC().ss_1;
+					const double upper = E1<maxPhotonEnergy ? E1 : maxPhotonEnergy;
+					double bK = upper>lower ? Fb*funcUtils.gsl_integration_qag(&func, lower, upper, maxAbsError, maxRelError, maxSubIntervals) : 0.;
 					ASSERT_VALID_NO(bK);
 					bph[i][j] += bK;
 #ifdef ICS_DEBUG
