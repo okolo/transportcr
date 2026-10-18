@@ -368,8 +368,9 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 		for(int j=0; j<jMax; j++, E*=BC().ss2)
 		{
 			double sum = 0;
+			const double lossE = j%2 ? midE[j/2] : E;
 			for(int k=0; k<mm; k++)
-				sum += aBackgr.Fmid(k)*cs.EnergyLossICS(E*midK[k]);
+				sum += aBackgr.Fmid(k)*cs.EnergyLossICS(lossE*midK[k]);
 			fEnergyLossRate[j] = sum;
 		}
 	}
@@ -377,6 +378,9 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 	CMatrix& be = f_be;
 	CMatrix& bph = f_bph;
 	CVector& ae = f_a;
+	for(int j=0; j<nn; j++)
+		for(int k=0; k<mm; k++)
+			ae[j] += aBackgr.Fmid(k)*cs.RICS(midE[j], midK[k]);
 
 	PFunction func;
 	double maxAbsError=0;
@@ -387,20 +391,21 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 		double Fb=aBackgr.Fmid(k);
 		double b = midK[k];
 		func.b = b;
-		double E=Emin*BC().ss2;
-		for(int j=0;j<nn;j++,E*=BC().ss1)
+		for(int j=0;j<nn;j++)
 		{
+			const double E = midE[j];
 			func.E = E;
-			double aK=Fb*cs.RICS(E,b);
-			ae[j]+=aK;
 			f_intPrdrGamma[j]+=Fb*cs.intPrdrICSph(E, b);
 			const double maxPhotonEnergy = E*cs.rMaxICSph(E*b);
+			const bool useCEL = UseCEL(j);
 #ifdef ICS_DEBUG
+			double aK=Fb*cs.RICS(E,b);
 			double eLossK = Fb*cs.EnergyLossICS(E*b);
 			double deltaErel = eLossK/aK;//typical fraction of energy lost in single interaction
 #endif
 			{//be
 				func.P = PICSph;
+				func.weighted = false;
 #ifdef ICS_DEBUG
 				double deltaEbins = -log(1.-deltaErel)/log(BC().ss1);//mean difference in bins between primary and secondary electron
 				double Psum = 0;
@@ -454,9 +459,35 @@ void ICScel::InitCoef(const CBackgroundTable& aBackgr)
 				double E1=Emin*BC().ss1;
 				for(int i=0;i<=j;i++,E1*=BC().ss1)
 				{
-					const double lower = E1*BC().ss_1;
-					const double upper = E1<maxPhotonEnergy ? E1 : maxPhotonEnergy;
-					double bK = upper>lower ? Fb*funcUtils.gsl_integration_qag(&func, lower, upper, maxAbsError, maxRelError, maxSubIntervals) : 0.;
+					double bK = 0.;
+					func.weighted = useCEL;
+					if(func.weighted)
+					{
+						// Linear deposition between centers preserves photon number
+						// and energy, except for flux through the lower grid boundary.
+						const double center = midE[i];
+						func.weightLower = center*BC().ss_1;
+						func.weightUpper = center;
+						func.increasing = true;
+						double lower = func.weightLower>Emin ? func.weightLower : Emin;
+						double upper = center<maxPhotonEnergy ? center : maxPhotonEnergy;
+						if(upper>lower)
+							bK += Fb*funcUtils.gsl_integration_qag(&func, lower, upper, maxAbsError, maxRelError, maxSubIntervals);
+						func.weightLower = center;
+						func.weightUpper = center*BC().ss1;
+						func.increasing = false;
+						lower = center;
+						upper = func.weightUpper<maxPhotonEnergy ? func.weightUpper : maxPhotonEnergy;
+						if(upper>lower)
+							bK += Fb*funcUtils.gsl_integration_qag(&func, lower, upper, maxAbsError, maxRelError, maxSubIntervals);
+					}
+					else
+					{
+						const double lower = E1*BC().ss_1;
+						const double upper = E1<maxPhotonEnergy ? E1 : maxPhotonEnergy;
+						if(upper>lower)
+							bK = Fb*funcUtils.gsl_integration_qag(&func, lower, upper, maxAbsError, maxRelError, maxSubIntervals);
+					}
 					ASSERT_VALID_NO(bK);
 					bph[i][j] += bK;
 #ifdef ICS_DEBUG
@@ -587,20 +618,7 @@ void ICScel::AdjustCoef()
 					if(i<4*deltaEbins)
 						continue;//not enough coefs for adjustment
 
-					bool UseCEL = ICS_CEL_MAX_BINS_DIFF>=0;
-					if(UseCEL)
-					{
-						if(ICS_CEL_MAX_BINS_DIFF==0.)//using CEL approximation only if it minimizes effective absorption coef
-						{
-							double coef = Jacobian::GetCELintRate(fEnergyLossRate, i);
-							UseCEL = (coef < ae[i]);
-						}
-						else
-						{//use CEL if difference in bins is smaller then ICS_CEL_BINS_MAX_DIFF
-							UseCEL = (deltaEbins < ICS_CEL_MAX_BINS_DIFF);
-						}
-					}
-					if(UseCEL)
+					if(UseCEL(i))
 						continue;//no need to adjust coefficients, since they are not being used
 
 					int jMeanSec = i-(int)deltaEbins;
@@ -791,10 +809,26 @@ void ICScel::AdjustCoef()
 }
 
 
+double ICScel::CELintRate(int aBin) const
+{
+	// A center-to-center transition must remove E_i times the physical
+	// fractional loss rate, not a logarithmic-grid approximation to it.
+	return fEnergyLossRate[2*aBin+1]/(1.-BC().ss_1);
+}
+
+bool ICScel::UseCEL(int aBin) const
+{
+	if(ICS_CEL_MAX_BINS_DIFF<0. || f_a[aBin]<=0.)
+		return false;
+	if(ICS_CEL_MAX_BINS_DIFF==0.)
+		return CELintRate(aBin)<f_a[aBin];
+	double deltaErel = fEnergyLossRate[2*aBin+1]/f_a[aBin];
+	return log(1./(1.-deltaErel))/log(BC().ss1)<ICS_CEL_MAX_BINS_DIFF;
+}
+
 void ICScel::Channel_e_e::Coef(CMatrixAddOnlyView& aCoef) const
 {
 	const int nn = Ranges().nE();
-	const CVector& eLoss = fCoupling.fEnergyLossRate;
 	const CMatrix& be = fCoupling.f_be;
 	const CVector& ae = fCoupling.f_a;
 
@@ -802,34 +836,22 @@ void ICScel::Channel_e_e::Coef(CMatrixAddOnlyView& aCoef) const
 	{
 		if(ae[iPrim]<=0)
 			continue;
-		//double E = Ranges().midE()[iPrim];
-		double coef = Jacobian::GetCELintRate(eLoss, iPrim);
-		bool UseCEL = ICS_CEL_MAX_BINS_DIFF>=0;
-		if(UseCEL)
+		if(fCoupling.UseCEL(iPrim))
 		{
-			if(ICS_CEL_MAX_BINS_DIFF==0.)//using CEL approximation only if it minimizes effective absorption coef
-				UseCEL = (coef < ae[iPrim]);
-			else
-			{//use CEL if difference in bins is smaller then ICS_CEL_BINS_MAX_DIFF
-				double deltaErel = eLoss[2*iPrim+1]/ae[iPrim];//typical energy lost in single interaction
-				double deltaEbins = log(1/(1-deltaErel))/log(BC().ss1);//difference in bins
-				UseCEL = deltaEbins < ICS_CEL_MAX_BINS_DIFF;
-			}
-		}
-		if(UseCEL)
-		{//use CEL approximation
-			Jacobian::AddCELbin(aCoef, eLoss, iPrim);
+			double coef = fCoupling.CELintRate(iPrim);
+			aCoef.Add(iPrim, iPrim, -coef);
+			if(iPrim>0)
+				aCoef.Add(iPrim-1, iPrim, coef);
 		}
 		else
-		{// use dif cross section
+		{
 			aCoef.Add(iPrim, iPrim, -ae[iPrim]);
 			for(int iSec = 0; iSec<=iPrim; iSec++)
-			{
 				aCoef.Add(iSec, iPrim, be[iSec][iPrim]);
-			}
 		}
 	}
 }
+
 
 void ICScel::Channel_e_gamma::Coef(CMatrixAddOnlyView& aCoef) const
 {

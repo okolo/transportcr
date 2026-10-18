@@ -57,13 +57,21 @@ class ICScel : public Coupling, protected CouplingParameters, EMConstants
 	class PFunction : public IFunction
 	{
 	public:
+		PFunction():weighted(false){};
 		double (* P) (double E, double b,double nE);
 		double E;
 		double b;
+		bool weighted;
+		bool increasing;
+		double weightLower;
+		double weightUpper;
 	protected:
 		virtual double f(double _x) const
 		{
-			return P(E, b, _x);
+			double value = P(E, b, _x);
+			if(weighted)
+				value *= (increasing ? _x-weightLower : weightUpper-_x)/(weightUpper-weightLower);
+			return value;
 		}
 	};
 public:
@@ -73,6 +81,8 @@ public:
 private:
 	void InitCoef(const CBackgroundTable& aBackgr);
 	void AdjustCoef();//ICS part of former PropagCoef::LeeAdjustment()
+	bool UseCEL(int aBin) const;
+	double CELintRate(int aBin) const;
 	static double PICSe(double E,double b,double nE);
 	static double PICSph(double E,double b,double nE);
 

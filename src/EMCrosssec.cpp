@@ -118,7 +118,9 @@ double EMCrosssec::PICSphR(double Eb, double r)
 	if(A*eps<1e-3)
 	{//calculating 1-q
 		double A1eps=(1.+A)*eps;
-		q_1=A1eps*(1-A1eps*(1+A1eps))*(1.+1./A);
+		// Exact form avoids cancellation near q=1 and a truncated series
+		// over the full Thomson interval when A is small.
+		q_1=A1eps/(1.+A1eps)*(1.+1./A);
 		ASSERT(q_1<1 && q_1>0);
 		k=(1.-q_1)*A;
 		q = 1.-q_1;
@@ -141,7 +143,7 @@ double EMCrosssec::PICSphR(double Eb, double r)
 	{
 		return C1 * 16.0 /(fSquareMass*A);	
 	}
-	double Log_q = (q_1<1e-5)? q*(-q_1*(q_1*(0.5 + q_1*(1./3. + 0.25*q_1)))) : log(q);
+	double Log_q = (q_1<1e-5) ? log1p(-q_1) : log(q);
 	double result = C1 * 16.0 /(fSquareMass*A) * (2.*q*Log_q + (1.+2.*q)*q_1 + 0.5 * k*k/(k+1.)*q_1);
 	ASSERT_VALID_NO(result);
 	return result;
